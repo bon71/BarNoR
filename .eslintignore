@@ -1,0 +1,28 @@
+# ESLint ignore file
+
+# Build outputs
+node_modules/
+dist/
+build/
+
+# Coverage reports (auto-generated)
+coverage/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# iOS
+ios/Pods/
+ios/build/
+
+# Android
+android/build/
+android/app/build/
+
+# Metro
+.metro-health-check*
+
+# Misc
+*.log
+.DS_Store

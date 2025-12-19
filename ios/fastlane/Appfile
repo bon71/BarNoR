@@ -1,0 +1,15 @@
+# Appfile for Fastlane
+# Documentation: https://docs.fastlane.tools/advanced/#appfile
+
+# Apple ID (your Apple Developer account email)
+# 実際のApple IDに置き換えてください
+apple_id("tanaka.takeshi@icloud.com")
+
+# Team ID (Apple Developer Team ID)
+# App Store ConnectまたはApple Developer Portalで確認できます
+# 実際のTeam IDに置き換えてください
+team_id("V9LK8PKJ37")
+
+# App Identifier (Bundle ID)
+app_identifier("com.bon.barno")
+

@@ -1,0 +1,21 @@
+# Fastlane specific files to ignore
+
+# Match files
+*.p12
+*.mobileprovision
+*.certSigningRequest
+
+# App Store Connect API Key
+*.p8
+
+# Reports
+report.xml
+report.html
+
+# Screenshots
+screenshots/**/*.png
+screenshots/**/*.jpg
+
+# Metadata
+metadata/**/*.txt
+

@@ -1,0 +1,83 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+# Disable New Architecture to fix RCTEventEmitter error
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
+
+platform :ios, '15.1'
+prepare_react_native_project!
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'NotionBarcodeReader' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  post_install do |installer|
+    # HermesのdSYMファイルを有効化
+    # App Store配信時のクラッシュレポート解析に必要
+    installer.pods_project.targets.each do |target|
+      if target.name == 'hermes-engine'
+        target.build_configurations.each do |config|
+          config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+          config.build_settings['DWARF_DSYM_FILE_SHOULD_ACCOMPANY_PRODUCT'] = 'YES'
+          config.build_settings['DWARF_DSYM_FOLDER_PATH'] = '$(CONFIGURATION_BUILD_DIR)'
+        end
+      end
+    end
+
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+      # :ccache_enabled => true
+    )
+
+    # Ensure all pods have a minimum deployment target of iOS 15.1
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.1
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        end
+
+        # Fix ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES for static libraries
+        # Only PBXNativeTarget has product_type, skip PBXAggregateTarget
+        if target.is_a?(Xcodeproj::Project::Object::PBXNativeTarget)
+          if target.product_type == 'com.apple.product-type.library.static'
+            config.build_settings['ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES'] = 'NO'
+          end
+        end
+      end
+
+      # Fix Hermes script phase output paths
+      target.build_phases.each_with_index do |phase, index|
+        if phase.is_a?(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
+          if phase.name&.include?('Hermes') || phase.shell_script&.include?('hermes')
+            # Add output paths for Hermes scripts
+            if phase.output_paths.nil? || phase.output_paths.empty?
+              # Use a unique output path per script phase to avoid conflicts
+              script_name = phase.name || "Hermes"
+              safe_name = script_name.gsub(/[^a-zA-Z0-9]/, '_')
+              phase.output_paths = [
+                "$(DERIVED_FILE_DIR)/hermes-#{target.name}-#{safe_name}-#{index}.txt"
+              ]
+            end
+          end
+        end
+      end
+    end
+  end
+end

@@ -1,0 +1,133 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+default_platform(:ios)
+
+platform :ios do
+  # 共通の設定
+  APP_IDENTIFIER = "com.bon.barno"
+  WORKSPACE = "NotionBarcodeReader.xcworkspace"
+  SCHEME = "NotionBarcodeReader"
+  XCODEPROJ = "NotionBarcodeReader.xcodeproj"
+
+  desc "Build the app"
+  lane :build do
+    build_app(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      export_method: "app-store",
+      clean: true
+    )
+  end
+
+  desc "Upload to TestFlight (beta build)"
+  lane :beta do
+    # ビルド番号を自動インクリメント
+    increment_build_number(
+      xcodeproj: XCODEPROJ
+    )
+
+    # アプリをビルド
+    build_app(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build"
+    )
+
+    # TestFlightにアップロード
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false,
+      notify_external_testers: false
+    )
+
+    # ビルド成果物をクリーンアップ
+    clean_build_artifacts
+  end
+
+  desc "Upload to TestFlight and submit for review"
+  lane :release do
+    # ビルド番号を自動インクリメント
+    increment_build_number(
+      xcodeproj: XCODEPROJ
+    )
+
+    # アプリをビルド
+    build_app(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      export_method: "app-store",
+      clean: true,
+      output_directory: "./build"
+    )
+
+    # TestFlightにアップロードして審査に提出
+    upload_to_testflight(
+      skip_waiting_for_build_processing: false,
+      skip_submission: false,
+      distribute_external: false,
+      notify_external_testers: false
+    )
+
+    # ビルド成果物をクリーンアップ
+    clean_build_artifacts
+  end
+
+  desc "Run tests"
+  lane :test do
+    run_tests(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      device: "iPhone 15"
+    )
+  end
+
+  desc "Sync certificates and provisioning profiles (readonly)"
+  lane :match do
+    match(
+      type: "appstore",
+      readonly: true
+    )
+  end
+
+  desc "Setup certificates and provisioning profiles (creates new if needed)"
+  lane :match_setup do
+    match(
+      type: "appstore",
+      readonly: false
+    )
+  end
+
+  desc "Increment version number"
+  lane :version_bump do
+    increment_version_number(
+      xcodeproj: XCODEPROJ,
+      version_number: ENV["VERSION_NUMBER"] # 例: fastlane version_bump VERSION_NUMBER:1.0.1
+    )
+  end
+
+  desc "Get current version and build number"
+  lane :version_info do
+    version = get_version_number(
+      xcodeproj: XCODEPROJ
+    )
+    build = get_build_number(
+      xcodeproj: XCODEPROJ
+    )
+    UI.message("Current version: #{version}")
+    UI.message("Current build: #{build}")
+  end
+end
+

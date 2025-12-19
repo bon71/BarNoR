@@ -1,0 +1,53 @@
+## PR Auto Labeler Configuration
+
+'documentation':
+  - changed-files:
+    - any-glob-to-any-file: ['docs/**/*', '*.md', 'README*']
+
+'tests':
+  - changed-files:
+    - any-glob-to-any-file: ['**/*.test.ts', '**/*.test.tsx', 'src/__tests__/**/*']
+
+'infrastructure':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'infrastructure/**/*'
+      - '.github/**/*'
+      - 'scripts/**/*'
+
+'presentation':
+  - changed-files:
+    - any-glob-to-any-file: 'src/presentation/**/*'
+
+'domain':
+  - changed-files:
+    - any-glob-to-any-file: 'src/domain/**/*'
+
+'data':
+  - changed-files:
+    - any-glob-to-any-file: 'src/data/**/*'
+
+'config':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/config/**/*'
+      - '*.config.js'
+      - '*.config.ts'
+      - 'tsconfig.json'
+      - 'package.json'
+
+'ios':
+  - changed-files:
+    - any-glob-to-any-file: 'ios/**/*'
+
+'android':
+  - changed-files:
+    - any-glob-to-any-file: 'android/**/*'
+
+'dependencies':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'ios/Podfile'
+      - 'ios/Podfile.lock'

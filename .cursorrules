@@ -1,0 +1,225 @@
+# AI Assistant Rules for Notion Barcode Reader
+
+## 📋 基本ルール
+
+### 対応言語・スタイル
+- **日本語**で応答してください
+- やったこと、確認方法を含めて報告してください
+- 複雑なタスクの場合は、実装前に計画をリストアップしてください
+
+### 音声通知
+タスク完了時は**最後に一度だけ**以下のコマンドで通知すること：
+
+```bash
+# 作業完了時
+afplay /System/Library/Sounds/Hero.aiff
+
+# ユーザーの返答・アクション待ち時
+afplay /System/Library/Sounds/Sosumi.aiff
+
+# その他の通知
+afplay /System/Library/Sounds/Ping.aiff
+```
+
+---
+
+## 🔧 開発環境設定
+
+### 言語バージョン管理
+**重要**: 全ての言語ランタイムは **asdf** で管理すること
+
+- Ruby、Node.js、Python等は asdf で管理（Homebrew 禁止）
+- プロジェクトルートに `.tool-versions` を配置
+- バージョン確認: `asdf current`
+
+### 環境変数
+- `.env` ファイル: キーはUPPER_SNAKE_CASE、値にクォート不要
+- APIキー等の機密情報は`.env`で管理（.gitignore必須）
+
+---
+
+## 🔄 Git 運用
+
+### ⚠️ 重要: mainブランチへの直接プッシュ禁止
+
+**mainブランチへの直接プッシュは厳禁です。必ずフィーチャーブランチとPRを使用してください。**
+
+### ブランチ戦略
+- **mainブランチ**: プロダクション品質のコードのみ（直接プッシュ禁止）
+- **フィーチャーブランチ**: 全ての変更は `feature/`, `fix/`, `chore/` などのブランチで実施
+- **ブランチ命名規則**: `<type>/<brief-description>`
+  - 例: `feature/add-barcode-scanner`, `fix/notion-api-error`
+
+### 必須ワークフロー
+
+**すべての変更は以下のワークフローに従うこと:**
+
+1. **フィーチャーブランチを作成**
+   ```bash
+   git checkout -b feature/description
+   ```
+
+2. **実装・コミット**
+   - こまめにコミット（機能単位、10-30分に1回推奨）
+   - コミット前に必ず動作確認・テスト実施
+   - エラーがない状態でコミット
+
+3. **プッシュ**
+   ```bash
+   git push -u origin feature/description
+   ```
+
+4. **PR作成（必須）**
+   ```bash
+   gh pr create --title "type: summary" --body "$(cat <<'EOF'
+   ## Summary
+   - 変更内容の概要
+
+   ## Test plan
+   - [ ] テスト項目1
+   - [ ] テスト項目2
+
+   🤖 Generated with AI Assistant
+   EOF
+   )"
+   ```
+
+5. **マージ後にブランチ削除**
+   ```bash
+   git branch -d feature/description
+   ```
+
+### コミットメッセージ形式
+
+```
+<type>: <subject>
+
+<body>
+
+🤖 Generated with AI Assistant
+
+Co-Authored-By: AI Assistant
+```
+
+**Type:**
+- `feat`: 新機能追加
+- `fix`: バグ修正
+- `test`: テスト追加・修正
+- `refactor`: リファクタリング
+- `docs`: ドキュメント更新
+- `chore`: その他の変更
+
+---
+
+## 💻 技術要件
+
+### TypeScript & コード品質
+- TypeScript型チェック: エラー0件
+- ESLint: 警告・エラー0件
+- Prettier: フォーマット統一
+
+### Notion API（このプロジェクト固有）
+- **APIバージョン**: 必ず `2022-06-28` を使用すること
+- `Notion-Version` ヘッダーで指定
+- 参考: [公式ドキュメント](https://developers.notion.com/)
+
+### React Native / iOS開発
+- iOS Deployment Target: 15.1
+- CocoaPods経由で依存関係を管理
+- ビルド前に `bundle exec pod install` を実行
+- Xcode関連の変更後は必ずクリーンビルド
+
+---
+
+## 📚 詳細ドキュメント
+
+以下のドキュメントを必要に応じて参照してください：
+
+### 開発関連
+- `docs/development/coding-standards.md` - コーディング規約
+- `docs/development/project-structure.md` - プロジェクト構造・命名規則
+- `docs/development/definition-of-done.md` - 完了定義チェックリスト
+- `docs/development/ai-collaboration.md` - AIツール連携方法
+
+### テスト関連
+- `docs/testing/standards.md` - テスト品質基準
+- `docs/testing/strategy.md` - テスト戦略
+
+### プロジェクト管理
+- `docs/product/README.md` - PRP管理ルール
+- `docs/adr/README.md` - ADR運用ルール
+
+### セキュリティ
+- `docs/security/checklist.md` - セキュリティチェックリスト
+
+### 運用
+- `docs/operations/troubleshooting.md` - トラブルシューティング
+
+---
+
+## 🔒 セキュリティ重要事項
+
+### 機密情報管理
+- APIキー・シークレットは `.env` ファイルで管理
+- `.env` を .gitignore に必ず追加
+- コードへの直接埋め込み禁止
+- Git履歴への含有禁止
+
+### ファイル作成時の注意
+Githubに挙げるべきでないファイルは**必ず .gitignore に追加**
+
+---
+
+## 🎯 基本ワークフロー
+
+1. **タスク開始**: フィーチャーブランチを作成（必須）
+2. **実装**: こまめにコミット、型チェック・ESLint確認
+3. **テスト**: 動作確認・テスト実施
+4. **プッシュ**: フィーチャーブランチにプッシュ
+5. **PR作成**: `gh pr create`でPRを作成（必須）
+6. **レビュー・マージ**: PRをマージ後、ブランチ削除
+7. **音声通知**: 状況に応じた通知実行
+
+**⚠️ 重要**: mainブランチへの直接プッシュは厳禁
+
+---
+
+## 🤖 Cursor固有の指示
+
+### コード生成時の注意
+- 既存のコードスタイルに従う
+- 型安全性を最優先
+- パフォーマンスを考慮した実装
+- エラーハンドリングを必ず含める
+
+### 必須: フィーチャーブランチとPRのワークフロー
+
+**mainブランチへの直接プッシュは禁止です。必ず以下のワークフローに従ってください:**
+
+1. **フィーチャーブランチを作成**
+   ```bash
+   git checkout -b feature/xxx
+   ```
+
+2. **変更を実装・コミット**
+   ```bash
+   git add .
+   git commit -m "type: description"
+   ```
+
+3. **フィーチャーブランチにプッシュ**
+   ```bash
+   git push -u origin feature/xxx
+   ```
+
+4. **PRを作成（必須）**
+   ```bash
+   gh pr create --title "..." --body "..."
+   ```
+
+5. **マージ後にブランチ削除**
+   ```bash
+   git branch -d feature/xxx
+   ```
+
+**このドキュメントはAI Assistantの基本実行ルールです。詳細ルールは `docs/` 配下を参照してください。**

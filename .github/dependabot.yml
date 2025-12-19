@@ -1,0 +1,64 @@
+version: 2
+updates:
+  # npm dependencies
+  # 注意: GitHub Dependabotのセキュリティアップデートは、GitHubのセキュリティ設定で有効化してください
+  # Settings > Security > Dependabot > Dependabot security updates を有効化
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "bon71"
+    assignees:
+      - "bon71"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+    versioning-strategy: increase
+    # サプライチェーン攻撃対策: 依存関係の更新を定期的にチェック
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "bon71"
+    assignees:
+      - "bon71"
+    commit-message:
+      prefix: "chore(ci)"
+    labels:
+      - "infrastructure"
+      - "automated"
+
+  # CocoaPods (iOS dependencies)
+  - package-ecosystem: "bundler"
+    directory: "/ios"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "bon71"
+    assignees:
+      - "bon71"
+    commit-message:
+      prefix: "chore(deps-ios)"
+    labels:
+      - "dependencies"
+      - "ios"
+      - "automated"
